@@ -1,12 +1,20 @@
+const defaultClosedX = -0.075;
 const parts = [
     {src: './img/telo.png', x: 0.03, y: 0.05, width: null, height: null, isDraggable: false, data: null},
-    {src: './img/horni-rameno.png', x: -0.075, y: 0.049, width: null, height: null, isDraggable: true, data: null},
-    {src: './img/spodni-rameno.png', x: -0.075, y: 0.05, width: null, height: null, isDraggable: true, data: null}
+    {src: './img/horni-rameno.png', defaultX: defaultClosedX, maxX: 0.6, x: defaultClosedX, y: 0.049, width: null, height: null, isDraggable: true, data: null},
+    {src: './img/spodni-rameno.png', defaultX: defaultClosedX, maxX: 0.6, x: defaultClosedX, y: 0.05, width: null, height: null, isDraggable: true, data: null}
 ];
+
+const unitMap = {
+    mm: 0.00422,
+    cm: 0.0422
+}
 
 const canvas = document.getElementById('clipper');
 const btnUp = document.getElementById('increaseBtn');
 const btnDown = document.getElementById('decreaseBtn');
+const unitSelectorElm = document.getElementById("unit");
+const displayElm = document.getElementById("display");
 
 const margin = {top: 0, length: 0};
 
@@ -53,12 +61,19 @@ function resizeCanvas(canvas, parts) {
     }
 }
 
+function updateDisplay(elm, value) {
+    value += Math.abs(defaultClosedX);
+    value = (value / unitMap[selectedUnit]).toFixed(2)
+    elm.textContent = `${value}  ${selectedUnit}`;
+}
+
 //state
 let isDragging = false;
 let startX = 0;
-let xPosition = 0;
+let xPosition = defaultClosedX;
 let closed = true;
 let maxOpened = false;
+let selectedUnit = "mm";
 
 canvas.addEventListener('mousedown', (event) => {
     console.log(event.offsetX);
@@ -90,6 +105,7 @@ canvas.addEventListener('mousemove', (event) => {
             }
 
             drawImage(part);
+            updateDisplay(displayElm, part.x);
         }
     }
 });
@@ -108,33 +124,40 @@ canvas.addEventListener('mouseout', () => {
 });
 
 
-btnDown.addEventListener('click', (event) => {
+btnDown.addEventListener('click', () => {
     maxOpened = false;
     if(closed) {
         return;
     }
 
+    xPosition -= unitMap[selectedUnit];
+
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     for (const part of parts) {
         if (!part.isDraggable) {
             drawImage(part);
             continue;
         }
-        part.x -= 0.0422
-        if (part.x <= -0.055) {
+        part.x = xPosition
+
+        if (part.x <= -0.075) {
+            part.x = part.defaultX;
             closed = true;
         }
         drawImage(part);
+        updateDisplay(displayElm, part.x);
     }
 });
 
-btnUp.addEventListener('click', (event) => {
+btnUp.addEventListener('click', () => {
     closed = false;
 
     if(maxOpened) {
         return;
     }
+    xPosition += unitMap[selectedUnit]
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (const part of parts) {
@@ -142,14 +165,19 @@ btnUp.addEventListener('click', (event) => {
             drawImage(part);
             continue;
         }
-        console.log(part.x)
-        part.x = (part.x + 0.0422)
+        part.x = xPosition
 
         if(part.x >= 0.6) {
+            part.x = part.maxX;
             maxOpened = true;
         }
         drawImage(part);
+        updateDisplay(displayElm, part.x);
     }
+});
+
+unitSelectorElm.addEventListener("change", (event) => {
+    selectedUnit = event.target.value;
 })
 
 
