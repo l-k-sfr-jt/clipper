@@ -1,8 +1,29 @@
 const defaultClosedX = -0.075;
+const defaultOpenedX = 0.6;
 const parts = [
     {src: './img/telo.png', x: 0.03, y: 0.05, width: null, height: null, isDraggable: false, data: null},
-    {src: './img/horni-rameno.png', defaultX: defaultClosedX, maxX: 0.6, x: defaultClosedX, y: 0.049, width: null, height: null, isDraggable: true, data: null},
-    {src: './img/spodni-rameno.png', defaultX: defaultClosedX, maxX: 0.6, x: defaultClosedX, y: 0.05, width: null, height: null, isDraggable: true, data: null}
+    {
+        src: './img/horni-rameno.png',
+        defaultX: defaultClosedX,
+        maxX: defaultOpenedX,
+        x: defaultClosedX,
+        y: 0.049,
+        width: null,
+        height: null,
+        isDraggable: true,
+        data: null
+    },
+    {
+        src: './img/spodni-rameno.png',
+        defaultX: defaultClosedX,
+        maxX: defaultOpenedX,
+        x: defaultClosedX,
+        y: 0.05,
+        width: null,
+        height: null,
+        isDraggable: true,
+        data: null
+    }
 ];
 
 const unitMap = {
@@ -76,19 +97,19 @@ let maxOpened = false;
 let selectedUnit = "mm";
 
 canvas.addEventListener('mousedown', (event) => {
-    console.log(event.offsetX);
-    const mouseX = event.offsetX;
-
-    // Check if the mouse is within the image bounds
-        isDragging = true;
-        startX = mouseX - (xPosition) * canvas.width;
+    startX = event.offsetX - parts[1].x * canvas.width;
+    console.log(startX);
+    isDragging = true;
 });
 
 // Mouse move event - drag the image
 canvas.addEventListener('mousemove', (event) => {
     const ctx = canvas.getContext('2d');
+    closed = false;
+    maxOpened = false;
+
     if (isDragging) {
-        xPosition = (event.offsetX) / canvas.width - 0.075;
+        xPosition =  (event.offsetX - startX) / canvas.width ;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (const part of parts) {
             if (!part.isDraggable) {
@@ -96,10 +117,14 @@ canvas.addEventListener('mousemove', (event) => {
                 continue;
             }
 
-            if(xPosition <=  -0.075) {
-                part.x = -0.075;
-            } else if (xPosition >= 0.65) {
-                part.x = 0.65;
+            if (xPosition <= part.defaultX) {
+                part.x = part.defaultX;
+                xPosition = part.x;
+                closed = true;
+            } else if (xPosition >= part.maxX) {
+                part.x = part.maxX;
+                xPosition = part.x;
+                maxOpened = true;
             } else {
                 part.x = xPosition;
             }
@@ -126,7 +151,7 @@ canvas.addEventListener('mouseout', () => {
 
 btnDown.addEventListener('click', () => {
     maxOpened = false;
-    if(closed) {
+    if (closed) {
         return;
     }
 
@@ -153,11 +178,12 @@ btnDown.addEventListener('click', () => {
 
 btnUp.addEventListener('click', () => {
     closed = false;
+    console.log(xPosition);
 
-    if(maxOpened) {
+    if (maxOpened) {
         return;
     }
-    xPosition += unitMap[selectedUnit]
+    xPosition += unitMap[selectedUnit];
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (const part of parts) {
@@ -167,7 +193,7 @@ btnUp.addEventListener('click', () => {
         }
         part.x = xPosition
 
-        if(part.x >= 0.6) {
+        if (part.x >= part.maxX) {
             part.x = part.maxX;
             maxOpened = true;
         }
