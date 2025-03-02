@@ -37,9 +37,6 @@ const btnDown = document.getElementById('decreaseBtn');
 const unitSelectorElm = document.getElementById("unit");
 const displayElm = document.getElementById("display");
 
-const margin = {top: 0, length: 0};
-
-
 function init() {
     resizeCanvas(canvas, parts);
 }
@@ -98,7 +95,6 @@ let selectedUnit = "mm";
 
 canvas.addEventListener('mousedown', (event) => {
     startX = event.offsetX - parts[1].x * canvas.width;
-    console.log(startX);
     isDragging = true;
 });
 
@@ -178,7 +174,6 @@ btnDown.addEventListener('click', () => {
 
 btnUp.addEventListener('click', () => {
     closed = false;
-    console.log(xPosition);
 
     if (maxOpened) {
         return;
@@ -206,7 +201,6 @@ unitSelectorElm.addEventListener("change", (event) => {
     selectedUnit = event.target.value;
 })
 
-
-init();
 window.addEventListener("resize", () => resizeCanvas(canvas, parts));
 
+init();
