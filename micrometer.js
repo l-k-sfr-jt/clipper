@@ -2,7 +2,7 @@ const partsObj = {
     main: {
         src: './img/hlavni-cast.png',
         coords: {
-            x: 0.1,
+            x: 0.0,
             y: 0.049,
         },
         imageData: null,
@@ -13,7 +13,7 @@ const partsObj = {
         imageData: null,
         width: null,
         coords: {
-            _x: 0.413,
+            _x: 0.313,
             y: 0.147,
             get x() {
                 return this._x;
@@ -24,14 +24,14 @@ const partsObj = {
             }
         },
         range: {
-            maxX: 0.569,
-            minX: 0.413,
+            maxX: 0.469,
+            minX: 0.313,
         },
     },
     drum: {
         src: './img/buben.png',
         coords: {
-            _x: 0.411,
+            _x: 0.311,
             y: 0.1445,
             get x() {
                 return this._x;
@@ -41,8 +41,8 @@ const partsObj = {
             }
         },
         range: {
-            maxX: 0.567,
-            minX: 0.411
+            maxX: 0.467,
+            minX: 0.311
         },
         imageData: null,
         width: null,
@@ -50,7 +50,7 @@ const partsObj = {
     slider: {
         src: './img/posuvnik.png',
         coords: {
-            _x: -0.137,
+            _x: -0.237,
             y: -0.09,
             get x() {
                 return this._x;
@@ -60,8 +60,8 @@ const partsObj = {
             }
         },
         range: {
-            maxX: -0.00,
-            minX: -0.137,
+            maxX: -0.1,
+            minX: -0.237,
         },
         imageData: null,
         width: null,
@@ -69,8 +69,8 @@ const partsObj = {
     scale: {
         src: "./img/stupnice.png",
         coords: {
-            _x: 0.412,
-            y: -0.095,
+            _x: 0.312,
+            y: -0.280,
             get x() {
                 return this._x;
             },
@@ -79,16 +79,16 @@ const partsObj = {
             },
         },
         range: {
-            maxX: 0.569,
-            minX: 0.412
+            maxX: 0.469,
+            minX: 0.312
         },
 
     },
     scale2: {
         src: "./img/stupnice.png",
         coords: {
-            _x: 0.412,
-            y: 0.272,
+            _x: 0.312,
+            y: 0.270,
             get x() {
                 return this._x;
             },
@@ -97,8 +97,8 @@ const partsObj = {
             },
         },
         range: {
-            maxX: 0.569,
-            minX: 0.412
+            maxX: 0.469,
+            minX: 0.312
         },
     }
 }
@@ -107,7 +107,13 @@ const partsObj = {
 const canvas = document.getElementById('micrometer');
 const btnUp = document.getElementById('increaseBtn');
 const btnDown = document.getElementById('decreaseBtn');
-
+const unitSelectorElm = document.getElementById("unit");
+const unitMap = {
+    mm: 10,
+    mmm: 2
+}
+let scaleSpeed = 2.7;
+let selectedUnit = "mm";
 function loadImages(imagePaths) {
     return Promise.all(
         imagePaths.map(({src, key}) => {
@@ -150,8 +156,8 @@ function drawMicrometer() {
     mask.width = canvas.width;
     mask.height = canvas.height;
 
-    drawImage(partsObj.scale.imageData, partsObj.scale.coords, canvas.width * 0.1, scaleImages);
-    drawImage(partsObj.scale2.imageData, partsObj.scale2.coords, canvas.width * 0.1, scaleImages);
+    drawImage(partsObj.scale.imageData, partsObj.scale.coords, canvas.width * 0.15, scaleImages);
+    drawImage(partsObj.scale2.imageData, partsObj.scale2.coords, canvas.width * 0.15, scaleImages);
 
     drawImage(partsObj.drumFilled.imageData, partsObj.drumFilled.coords, canvas.width * 0.49, mask);
     maskCtx.globalCompositeOperation = "source-in";
@@ -191,30 +197,29 @@ function updateSliderAndDrumPosition(newXPosition) {
 
     //Scale Y direction
     if(partsObj.drum.coords.x === partsObj.drum.range.minX || partsObj.drum.coords.x === partsObj.drum.range.maxX) {
-        partsObj.scale.coords.y = -0.095
-        partsObj.scale2.coords.y = 0.272
+        partsObj.scale.coords.y = -0.280;
+        partsObj.scale2.coords.y = 0.270;
         return
     }
 
-    const scaleSpeed = 17.4;
-    const threshHold = 0.367497;
+    const threshHold = 0.549497;
 
-    let scale1Y = -0.095 + ((sliderProgress * scaleSpeed) % threshHold);
-    let scale2Y = 0.272 + ((sliderProgress * scaleSpeed) % threshHold);
+    let scale1Y = -0.280 + ((sliderProgress * scaleSpeed) % threshHold);
+    let scale2Y = 0.270 + ((sliderProgress * scaleSpeed) % threshHold);
 
-    if(scale1Y > 0.37) {
+    if(scale1Y > 0.55) {
         if(scale2Y > 0 ) {
-            scale1Y = scale2Y - 0.367
+            scale1Y = scale2Y - 0.549
         } else {
-            scale1Y = scale2Y + 0.367
+            scale1Y = scale2Y + 0.549
         }
     }
 
-    if(scale2Y > 0.37) {
+    if(scale2Y > 0.57) {
         if(scale1Y > 0 ) {
-            scale2Y = scale1Y - 0.367
+            scale2Y = scale1Y - 0.549
         } else {
-            scale2Y = scale1Y + 0.367
+            scale2Y = scale1Y + 0.549
         }
 
     }
@@ -258,7 +263,7 @@ btnUp.addEventListener("click", function () {
     sliderStartX = 0
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    updateSliderAndDrumPosition(partsObj.slider.coords.x * canvas.width + 10);
+    updateSliderAndDrumPosition(partsObj.slider.coords.x * canvas.width + unitMap[selectedUnit]);
     drawMicrometer()
 });
 
@@ -266,9 +271,13 @@ btnDown.addEventListener("click", function () {
     sliderStartX = 0
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    updateSliderAndDrumPosition(partsObj.slider.coords.x * canvas.width - 10);
+    updateSliderAndDrumPosition(partsObj.slider.coords.x * canvas.width - unitMap[selectedUnit]);
     drawMicrometer()
 });
+
+unitSelectorElm.addEventListener("change", (event) => {
+    selectedUnit = event.target.value;
+})
 
 async function  init() {
     const imagePaths = Object.entries(partsObj).map(([key, part]) => ({
