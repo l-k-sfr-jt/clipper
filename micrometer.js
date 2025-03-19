@@ -108,9 +108,11 @@ const canvas = document.getElementById('micrometer');
 const btnUp = document.getElementById('increaseBtn');
 const btnDown = document.getElementById('decreaseBtn');
 const unitSelectorElm = document.getElementById("unit");
+const displayElm = document.getElementById("display");
+
 const unitMap = {
-    mm: 10,
-    mmm: 2
+    mm: 0.002735,
+    mmm: 0.00052
 }
 let scaleSpeed = 2.7;
 let selectedUnit = "mm";
@@ -164,6 +166,7 @@ function drawMicrometer() {
     maskCtx.drawImage(scaleImages, 0, 0);
 
     ctx.drawImage(mask, 0, 0);
+    updateDisplay(displayElm, partsObj.slider.coords.x)
 
 }
 
@@ -263,7 +266,7 @@ btnUp.addEventListener("click", function () {
     sliderStartX = 0
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    updateSliderAndDrumPosition(partsObj.slider.coords.x * canvas.width + unitMap[selectedUnit]);
+    updateSliderAndDrumPosition((partsObj.slider.coords.x + unitMap[selectedUnit]) * canvas.width);
     drawMicrometer()
 });
 
@@ -271,13 +274,20 @@ btnDown.addEventListener("click", function () {
     sliderStartX = 0
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    updateSliderAndDrumPosition(partsObj.slider.coords.x * canvas.width - unitMap[selectedUnit]);
+    updateSliderAndDrumPosition((partsObj.slider.coords.x -unitMap[selectedUnit]) * canvas.width);
     drawMicrometer()
 });
 
 unitSelectorElm.addEventListener("change", (event) => {
     selectedUnit = event.target.value;
-})
+});
+
+function updateDisplay(elm, value) {
+    value += Math.abs(0.237);
+    value = (value * 18.30).toFixed(2)
+    console.log(value);
+    elm.textContent = `${value}  mm`;
+}
 
 async function  init() {
     const imagePaths = Object.entries(partsObj).map(([key, part]) => ({
