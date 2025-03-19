@@ -114,7 +114,7 @@ const unitMap = {
     mm: 0.002735,
     mmm: 0.00052
 }
-let scaleSpeed = 2.7;
+let scaleSpeed = 2.753;
 let selectedUnit = "mm";
 function loadImages(imagePaths) {
     return Promise.all(
